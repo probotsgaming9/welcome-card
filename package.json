@@ -1,4 +1,9 @@
-"dependencies": {
-  "@napi-rs/canvas": "^0.1.40",
-  "axios": "^1.6.7"
+{
+  "name": "discord-welcome-api",
+  "version": "1.0.0",
+  "main": "api/welcome-card.js",
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.40",
+    "axios": "^1.6.7"
+  }
 }
