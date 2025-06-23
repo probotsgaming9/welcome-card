@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
   ctx.fillRect(0, 0, width, height);
 
   try {
-    // Load avatar
+    // Fetch avatar image
     const response = await axios.get(avatar, { responseType: 'arraybuffer' });
     const avatarImg = await loadImage(response.data);
 
@@ -27,7 +27,6 @@ module.exports = async (req, res) => {
     const avatarX = width / 2 - avatarSize / 2;
     const avatarY = 50;
 
-    // Draw avatar (circle)
     ctx.save();
     ctx.beginPath();
     ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
@@ -35,22 +34,21 @@ module.exports = async (req, res) => {
     ctx.drawImage(avatarImg, avatarX, avatarY, avatarSize, avatarSize);
     ctx.restore();
 
-    // Draw debug rectangle where text should go (optional, for testing)
-    ctx.strokeStyle = '#ff0000';
-    ctx.strokeRect(width / 2 - 200, avatarY + avatarSize + 10, 400, 80);
+    // Generate text image from QuickChart
+    const textUrl = `https://quickchart.io/text?text=Welcome%20${encodeURIComponent(username)}&fontSize=60&color=ffffff&backgroundColor=23272A&format=png`;
+    const textResponse = await axios.get(textUrl, { responseType: 'arraybuffer' });
+    const textImg = await loadImage(textResponse.data);
 
-    // Draw username text
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '60px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(`Welcome ${username}`, width / 2, avatarY + avatarSize + 10);
+    // Draw text image centered below avatar
+    const textX = width / 2 - textImg.width / 2;
+    const textY = avatarY + avatarSize + 20;
+    ctx.drawImage(textImg, textX, textY);
 
-    // Output image
+    // Send final image
     res.setHeader('Content-Type', 'image/png');
     res.send(canvas.toBuffer('image/png'));
   } catch (err) {
     console.error(err);
-    res.status(500).send('Failed to generate card');
+    res.status(500).send('Failed to generate welcome card');
   }
 };
